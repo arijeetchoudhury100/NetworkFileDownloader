@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
     cout<<"Received filename: "<<filename<<"\n";
         
     //filename is present in filename, server will search for the file in current directory
-    string path = "/home/laxus/c++/sockets";
+    string path = "/";
     string no_found = "Sorry, file not found";
     string yes_found = "File found";
     DIR *dir;
