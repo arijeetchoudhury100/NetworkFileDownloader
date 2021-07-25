@@ -3,6 +3,7 @@ A simple application that will allow clients to download files from a server bas
 
 **Usage**:
 1. Compile the logger.
+
 `g++ -c logger.cpp`
 
 2. Compile the server and client.
