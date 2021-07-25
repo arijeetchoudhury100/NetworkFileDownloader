@@ -2,19 +2,20 @@
 A simple application that will allow clients to download files from a server based on the filename. Current a single client is supported.
 
 **Usage**:
-1. Compile the logger
+1. Compile the logger.
 `g++ -c logger.cpp`
 
-2. Compile the server and client
+2. Compile the server and client.
+
 `g++ logger.o server.cpp -o server`
 
 `g++ logger.o client.cpp -o client`
 
-3. Execute server
+3. Execute server.
 
 `./server`
 
-4. Execute client
+4. Execute client.
 
 `./client`
 
