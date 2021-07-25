@@ -1,0 +1,13 @@
+2021-07-25 20:34:15	sent filename to server
+2021-07-25 20:34:15	Receiving file of size: 746
+2021-07-25 20:44:54	Socket creation successful
+2021-07-25 20:44:54	Valid server address
+2021-07-25 20:44:54	Successfully connected to server
+2021-07-25 20:44:58	sent filename to server
+2021-07-25 20:44:58	Receiving file of size: 746
+2021-07-25 20:48:15	Socket creation successful
+2021-07-25 20:48:15	Valid server address
+2021-07-25 20:48:15	Successfully connected to server
+2021-07-25 20:48:19	sent filename to server
+2021-07-25 20:48:19	Receiving file of size: 746, preparing buffer
+2021-07-25 20:48:19	Read successful

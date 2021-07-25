@@ -1,0 +1,28 @@
+2021-07-25 20:34:15	Received filename from client: 
+2021-07-25 20:34:15	scanning pwd for file
+2021-07-25 20:44:46	bsocket creation successful
+2021-07-25 20:44:46	successfully attached socket to port
+2021-07-25 20:44:46	bind successful for socket
+2021-07-25 20:44:46	Listening for incoming connection...
+2021-07-25 20:44:54	Client connected successfully
+2021-07-25 20:44:58	Received filename from client: 
+2021-07-25 20:44:58	scanning pwd for file
+2021-07-25 20:44:58	File found, proceeding to transfer
+2021-07-25 20:44:58	Started file read
+2021-07-25 20:44:58	File read successful
+2021-07-25 20:44:58	Sending file size to client, size of file is746
+2021-07-25 20:44:58	Sending file data to client
+2021-07-25 20:48:09	bsocket creation successful
+2021-07-25 20:48:09	successfully attached socket to port
+2021-07-25 20:48:09	bind successful for socket
+2021-07-25 20:48:09	Listening for incoming connection...
+2021-07-25 20:48:15	Client connected successfully
+2021-07-25 20:48:19	Received filename from client: 
+2021-07-25 20:48:19	scanning pwd for file
+2021-07-25 20:48:19	File found, proceeding to transfer
+2021-07-25 20:48:19	Started file read
+2021-07-25 20:48:19	File read successful
+2021-07-25 20:48:19	Sending file size to client, size of file is746
+2021-07-25 20:48:19	Filesize sent to client
+2021-07-25 20:48:19	Sending file data to client
+2021-07-25 20:48:19	File data sent to client!
