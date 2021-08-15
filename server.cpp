@@ -73,7 +73,6 @@ int SocketServer::socket_listen_and_accept()
         logger("Failed to accept connection from client", LOGTYPE);
         return -1;
 	}
-<<<<<<< HEAD
     logger("Client connected successfully", LOGTYPE);
     return 0;
 }
@@ -94,19 +93,6 @@ int SocketServer::set_socket_options()
 
 int SocketServer::find_child(string parent, string child)
 {
-=======
-    else{
-        logger("Client connected successfully", LOGTYPE);
-    }
-    recv(new_socket, filename, 100, 0);
-    logger("Received filename from client: ", LOGTYPE);
-    cout<<"Received filename: "<<filename<<"\n";
-        
-    //filename is present in filename, server will search for the file in current directory
-    string path = "/";
-    string no_found = "Sorry, file not found";
-    string yes_found = "File found";
->>>>>>> 56c4bf1bfee08f641170207fe0317e03be44b5da
     DIR *dir;
     struct dirent *diread;
     bool found = false;
