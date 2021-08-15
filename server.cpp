@@ -11,72 +11,90 @@
 #include <stdint.h>
 #include <fstream>
 #include "logger.h"
+#include "server.h"
+
 #define PORT 8080
 #define BLOCK_SIZE 1024
 #define LOGTYPE "server"
 using namespace std;
 
-int main(int argc, char const *argv[])
+SocketServer::SocketServer(string hostname, int port)
 {
-	int server_fd, new_socket, valread;
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
-	char filename[100];
-	
-	// Creating socket file descriptor
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-	{
-		perror("socket failed");
-        logger("socket creation failed", LOGTYPE);
-		exit(EXIT_FAILURE);
-	}
-	else{
-        logger("bsocket creation successful", LOGTYPE);
+    this->port = port;
+    this->hostname = hostname;
+    opt = 1;
+    isChildPresent = false;
+}
+
+int SocketServer::init()
+{
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == 0)
+    {
+        perror("socket creation failed");
+        logger("Failed to create server socket", LOGTYPE);
+        return -1;
     }
-	// Forcefully attaching socket to the port 8080
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-												&opt, sizeof(opt)))
-	{
-		perror("setsockopt");
-        logger("failed to attach socket to port", LOGTYPE);
-		exit(EXIT_FAILURE);
-	}
-    else{
-        logger("successfully attached socket to port", LOGTYPE);
-    }
-	address.sin_family = AF_INET;
+    address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons( PORT );
-	
-	// Forcefully attaching socket to the port 8080
-	if (bind(server_fd, (struct sockaddr *)&address,
+    addrlen = sizeof(address);
+    logger("server socket init success", LOGTYPE);
+    return 0;
+}
+
+int SocketServer::socket_bind()
+{
+    if (bind(server_fd, (struct sockaddr *)&address,
 								sizeof(address))<0)
 	{
 		perror("bind failed");
         logger("failed to bind socket", LOGTYPE);
-		exit(EXIT_FAILURE);
+		return -1;
 	}
-    else{
-        logger("bind successful for socket", LOGTYPE);
-    }
+    logger("successfully bound to port",LOGTYPE);
+    return 0;
+}
 
-	if (listen(server_fd, 3) < 0)
+int SocketServer::socket_listen_and_accept()
+{
+    if (listen(server_fd, 3) < 0)
 	{
 		perror("listen");
-        logger("failed to listen to port", LOGTYPE);
-		exit(EXIT_FAILURE);
+        logger("Failed to listen to port", LOGTYPE);
+		return -1;
 	}
-    else{
-        logger("Listening for incoming connection...", LOGTYPE);
-    }
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
+    logger("Listening for incoming connection...", LOGTYPE);
+    
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
 					(socklen_t*)&addrlen))<0)
 	{
 		perror("accept");
-        logger("failed to accept connection from client", LOGTYPE);
-		exit(EXIT_FAILURE);
+        logger("Failed to accept connection from client", LOGTYPE);
+        return -1;
 	}
+<<<<<<< HEAD
+    logger("Client connected successfully", LOGTYPE);
+    return 0;
+}
+
+int SocketServer::set_socket_options()
+{
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+												&opt, sizeof(opt)))
+	{
+		perror("setsockopt");
+        logger("failed to set socket options", LOGTYPE);
+        return -1;
+	}
+    
+    logger("successfully set socket options", LOGTYPE);
+    
+}
+
+int SocketServer::find_child(string parent, string child)
+{
+=======
     else{
         logger("Client connected successfully", LOGTYPE);
     }
@@ -88,65 +106,117 @@ int main(int argc, char const *argv[])
     string path = "/";
     string no_found = "Sorry, file not found";
     string yes_found = "File found";
+>>>>>>> 56c4bf1bfee08f641170207fe0317e03be44b5da
     DIR *dir;
     struct dirent *diread;
     bool found = false;
     
-    if( (dir = opendir("/home/laxus/c++/sockets")) != nullptr){
-        logger("scanning pwd for file", LOGTYPE);
-        cout<<"Scanning directory for file "<<filename<<"\n";
-        while((diread = readdir(dir)) != nullptr){
-            //files.push_back(diread->d_name);
-            if(strcmp(filename, diread->d_name) == 0){
-                cout<<yes_found<<endl;
-                found = true;
+    if( (dir = opendir(parent.c_str())) != nullptr)
+    {
+        logger("scanning parent for file", LOGTYPE);
+        while((diread = readdir(dir)) != nullptr)
+        {
+            if(strcmp(child.c_str(), diread->d_name) == 0)
+            {
+                isChildPresent = true;
                 logger("File found, proceeding to transfer", LOGTYPE);
             }
         }
         closedir(dir);
-        if(!found){
-            cout<<no_found<<endl;
+        if(!isChildPresent)
+        {
             logger("File not found", LOGTYPE);
-        }     
+            return 0;
+        }
+        return 1;     
     }
-    else {
+    else 
+    {
         perror ("opendir");
         logger("Failed to open directory", LOGTYPE);
-        return EXIT_FAILURE;
+        return 0;
+    }
+}
+
+int SocketServer::read_file(string parent, string child, string& buf)
+{
+    if (!find_child(parent, child))
+    {
+        logger("Failed to read file, file not present", LOGTYPE);
+        return 0;
+    }
+    
+    logger("Started file read", LOGTYPE);
+    
+    ifstream fr;
+    char current_char = 0;
+    fr.open(child);
+    while(fr.get(current_char)){
+        buf.push_back(current_char);
+    }
+    
+    logger("File read successful", LOGTYPE);
+    fr.close();
+    return 1;
+}
+
+int SocketServer::send_metadata(int32_t len)
+{
+    string msg = "Sending file size to client, size of file is" + to_string(len);
+    logger(msg,LOGTYPE);
+    if (send(new_socket, &len, sizeof(int32_t), 0) <= 0){
+        logger("Failed to send filesize", LOGTYPE);
+        return 0;
+    }
+    logger("Filesize sent to client", LOGTYPE);
+    return 1;
+}
+
+int SocketServer::send_data(string buf)
+{
+    string msg = "Sending file data to client, size of file is" + to_string(buf.length());
+    logger(msg,LOGTYPE);
+    if( send(new_socket, buf.c_str(), sizeof(int32_t), 0) <= 0){
+        logger("Failed to send file data", LOGTYPE);
+        return 0;
+    }
+    logger("File data sent to client", LOGTYPE);
+    return 1;
+}
+
+int SocketServer::send_file(string parent, string child)
+{
+    string buf = "";
+    if (!read_file(parent,child,buf))
+    {
+        logger("Failed to send file to client, can't read file", LOGTYPE);
+        return 0;
     }
 
-    if(found){ //yes_found
-        //start reading the file
-        logger("Started file read", LOGTYPE);
-        ifstream fr;
-        string filedata = "";
-        char current_char = 0;
-        int idx = 0;
-
-        fr.open(filename);
-        while(fr.get(current_char)){
-            filedata.push_back(current_char);
-        }
-        logger("File read successful", LOGTYPE);
-        fr.close();
-        
-        int32_t l = filedata.length();
-        //send file size
-        string msg = "Sending file size to client, size of file is" + to_string(l);
-        logger(msg,LOGTYPE);
-
-        if(send(new_socket, &l, sizeof(int32_t), 0) <= 0){
-            logger("Failed to send filesize", LOGTYPE);
-            exit(EXIT_FAILURE);
-        }
-        logger("Filesize sent to client", LOGTYPE);
-        //send file data
-        logger("Sending file data to client", LOGTYPE);
-        if(send(new_socket, filedata.c_str(), filedata.length(), 0) <= 0){
-            logger("Failed to send filedata", LOGTYPE);
-            exit(EXIT_FAILURE);
-        }
-        logger("File data sent to client!", LOGTYPE);
+    int32_t len = buf.length();
+    //send file metadata ( length of file )
+    if (!send_metadata(len))
+    {
+        logger("Failed to send metadata", LOGTYPE);
+        return 0;
     }
-	return 0;
+
+    if (!send_data(buf))
+    {
+        logger("Failed to send file data", LOGTYPE);
+        return 0;
+    }
+
+    //file send successfully
+    return len;
+
+}
+int main(int argc, char const *argv[])
+{
+        SocketServer server("127.0.0.1", PORT);
+        server.init();
+        server.set_socket_options();
+        server.socket_bind();
+        server.socket_listen_and_accept();
+		return 0;
 }
